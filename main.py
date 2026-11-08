@@ -1,4 +1,8 @@
+import json
+import os
 import sys
+
+STATE_FILE = "state.json"
 
 
 class Quiz:
@@ -110,10 +114,60 @@ def safe_input_int(prompt: str, min_val: int, max_val: int) -> int:
             sys.exit(0)
 
 
+# ==========================================
+# [데이터 영속성 함수 (과제 요구사항 11 충족)]
+# ==========================================
+def save_state(quizzes: list[Quiz], best_score: int) -> bool:
+    """퀴즈 목록과 최고 점수를 state.json에 UTF-8 인코딩으로 저장합니다."""
+    try:
+        data = {
+            "quizzes": [q.to_dict() for q in quizzes],
+            "best_score": best_score
+        }
+        with open(STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception as e:
+        print(f"⚠️ 파일 저장 중 오류가 발생했습니다: {e}")
+        return False
+
+
+def load_state() -> tuple[list[Quiz], int]:
+    """state.json에서 데이터를 불러오며, 누락/손상 시 기본 데이터로 자동 복구합니다."""
+    # 1. 파일이 없는 경우 (첫 실행)
+    if not os.path.exists(STATE_FILE):
+        default_quizzes = get_default_quizzes()
+        save_state(default_quizzes, 0)
+        return default_quizzes, 0
+
+    # 2. 파일이 존재하는 경우 읽기 시도
+    try:
+        with open(STATE_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        quizzes = [Quiz.from_dict(item) for item in data.get("quizzes", [])]
+        best_score = data.get("best_score", 0)
+
+        # 퀴즈 목록이 비어있는 비정상 상태면 기본 퀴즈로 채움
+        if not quizzes:
+            quizzes = get_default_quizzes()
+            save_state(quizzes, best_score)
+
+        return quizzes, best_score
+
+    # 3. 파일이 손상되었거나 JSON 형식이 깨진 경우 (방어적 복구)
+    except (json.JSONDecodeError, KeyError, Exception):
+        print("\n⚠️ state.json 데이터 파일이 손상되었습니다.")
+        print("🔧 기본 퀴즈 데이터로 안전하게 복구(초기화)합니다.\n")
+        default_quizzes = get_default_quizzes()
+        save_state(default_quizzes, 0)
+        return default_quizzes, 0
+
+
 if __name__ == "__main__":
-    # [방어적 입력 단독 테스트]
-    print("=== 방어적 입력 함수 테스트 ===")
-    print("일부러 문자(abc), 빈 엔터, 범위 밖 숫자(99), 공백(' 2 ')을 입력해 보세요!")
-    selected = safe_input_int("1-4 사이의 번호 입력: ", 1, 4)
-    print(f"선택 완료: {selected}번")
+    # [JSON 데이터 영속성 단독 테스트]
+    print("=== state.json 데이터 영속성 테스트 ===")
+    loaded_quizzes, high_score = load_state()
+    print(f"📂 데이터 로드 성공: 퀴즈 {len(loaded_quizzes)}개, 역대 최고점수 {high_score}점")
+    print(f"📁 파일 생성 확인: '{STATE_FILE}' 파일이 폴더에 생성되었습니다.")
     print("=== 테스트 종료 ===")
