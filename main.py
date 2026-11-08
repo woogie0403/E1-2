@@ -9,9 +9,9 @@ class Quiz:
     """개별 퀴즈의 정보를 담고 출력 및 채점을 담당하는 클래스"""
 
     def __init__(self, question: str, choices: list[str], answer: int):
-        self.question = question      # 문제 내용 (str)
-        self.choices = choices        # 4지선다 보기 리스트 (list[str])
-        self.answer = answer          # 정답 번호 1~4 (int)
+        self.question = question
+        self.choices = choices
+        self.answer = answer
 
     def display(self, q_num: int | None = None) -> None:
         """문제와 4지선다 보기를 화면에 출력합니다."""
@@ -76,9 +76,6 @@ def get_default_quizzes() -> list[Quiz]:
     ]
 
 
-# ==========================================
-# [공통 방어적 입력 함수 (과제 요구사항 3 충족)]
-# ==========================================
 def safe_input_str(prompt: str) -> str:
     """공백 제거 및 Ctrl+C / EOF 대응 안전 문자열 입력 함수"""
     while True:
@@ -114,9 +111,6 @@ def safe_input_int(prompt: str, min_val: int, max_val: int) -> int:
             sys.exit(0)
 
 
-# ==========================================
-# [데이터 영속성 함수 (과제 요구사항 11 충족)]
-# ==========================================
 def save_state(quizzes: list[Quiz], best_score: int) -> bool:
     """퀴즈 목록과 최고 점수를 state.json에 UTF-8 인코딩으로 저장합니다."""
     try:
@@ -134,13 +128,11 @@ def save_state(quizzes: list[Quiz], best_score: int) -> bool:
 
 def load_state() -> tuple[list[Quiz], int]:
     """state.json에서 데이터를 불러오며, 누락/손상 시 기본 데이터로 자동 복구합니다."""
-    # 1. 파일이 없는 경우 (첫 실행)
     if not os.path.exists(STATE_FILE):
         default_quizzes = get_default_quizzes()
         save_state(default_quizzes, 0)
         return default_quizzes, 0
 
-    # 2. 파일이 존재하는 경우 읽기 시도
     try:
         with open(STATE_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -148,14 +140,11 @@ def load_state() -> tuple[list[Quiz], int]:
         quizzes = [Quiz.from_dict(item) for item in data.get("quizzes", [])]
         best_score = data.get("best_score", 0)
 
-        # 퀴즈 목록이 비어있는 비정상 상태면 기본 퀴즈로 채움
         if not quizzes:
             quizzes = get_default_quizzes()
             save_state(quizzes, best_score)
 
         return quizzes, best_score
-
-    # 3. 파일이 손상되었거나 JSON 형식이 깨진 경우 (방어적 복구)
     except (json.JSONDecodeError, KeyError, Exception):
         print("\n⚠️ state.json 데이터 파일이 손상되었습니다.")
         print("🔧 기본 퀴즈 데이터로 안전하게 복구(초기화)합니다.\n")
@@ -164,10 +153,67 @@ def load_state() -> tuple[list[Quiz], int]:
         return default_quizzes, 0
 
 
+# ==========================================
+# [QuizGame 클래스 (과제 요구사항 2, 10 충족)]
+# ==========================================
+class QuizGame:
+    """퀴즈 게임 전체 흐름과 메뉴, 데이터 상태를 관리하는 컨트롤러 클래스"""
+
+    def __init__(self):
+        self.quizzes, self.best_score = load_state()
+
+    def show_menu(self) -> None:
+        """과제 명세서 표준 메인 메뉴를 출력합니다."""
+        print("\n" + "=" * 40)
+        print(" 🎯 나만의 퀴즈 게임 🎯")
+        print("=" * 40)
+        print(" 1. 퀴즈 풀기")
+        print(" 2. 퀴즈 추가")
+        print(" 3. 퀴즈 목록")
+        print(" 4. 점수 확인")
+        print(" 5. 종료")
+        print("=" * 40)
+
+    def play_quiz(self) -> None:
+        """[STEP 6에서 브랜치 작업으로 구현 예정]"""
+        print("\n👉 [퀴즈 풀기 기능은 STEP 6 브랜치 작업에서 구현됩니다!]")
+
+    def add_quiz(self) -> None:
+        """[STEP 7에서 구현 예정]"""
+        print("\n👉 [퀴즈 추가 기능은 STEP 7에서 구현됩니다!]")
+
+    def show_quizzes(self) -> None:
+        """[STEP 8에서 구현 예정]"""
+        print("\n👉 [퀴즈 목록 기능은 STEP 8에서 구현됩니다!]")
+
+    def show_score(self) -> None:
+        """[STEP 8에서 구현 예정]"""
+        print("\n👉 [점수 확인 기능은 STEP 8에서 구현됩니다!]")
+
+    def run(self) -> None:
+        """메인 이벤트 루프를 실행합니다."""
+        print(f"\n📂 저장된 데이터를 불러왔습니다. (퀴즈 {len(self.quizzes)}개, 최고점수 {self.best_score}점)")
+
+        while True:
+            self.show_menu()
+            choice = safe_input_int("선택: ", 1, 5)
+
+            if choice == 1:
+                self.play_quiz()
+            elif choice == 2:
+                self.add_quiz()
+            elif choice == 3:
+                self.show_quizzes()
+            elif choice == 4:
+                self.show_score()
+            elif choice == 5:
+                # 종료 시 데이터 저장 후 안전 종료
+                save_state(self.quizzes, self.best_score)
+                print("\n💾 데이터가 안전하게 저장되었습니다.")
+                print("👋 퀴즈 게임을 종료합니다. 감사합니다!\n")
+                break
+
+
 if __name__ == "__main__":
-    # [JSON 데이터 영속성 단독 테스트]
-    print("=== state.json 데이터 영속성 테스트 ===")
-    loaded_quizzes, high_score = load_state()
-    print(f"📂 데이터 로드 성공: 퀴즈 {len(loaded_quizzes)}개, 역대 최고점수 {high_score}점")
-    print(f"📁 파일 생성 확인: '{STATE_FILE}' 파일이 폴더에 생성되었습니다.")
-    print("=== 테스트 종료 ===")
+    game = QuizGame()
+    game.run()
