@@ -1,47 +1,17 @@
-# Byte-compiled / optimized / DLL files
+# 1. 파이썬 실행 시 자동 생성되는 컴파일 캐시 폴더
 __pycache__/
-*.py[cod]
-*$py.class
 
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual Environments
-venv/
+# 2. 파이썬 가상환경
 .venv/
-ENV/
-env/
+venv/
 
-# IDE and Editors
+# 3. 에디터(VSCode) 설정 폴더
 .vscode/
-.idea/
-*.swp
-*.swo
 
-# Operating System Files
+# 4. 운영체제(Windows/Mac) 임시 파일
 Thumbs.db
-ehthumbs.db
-Desktop.ini
 .DS_Store
 
-# Course & Tutor meta files
+# 5. 과제 제출 불필요 파일 (5MB PDF 명세서 & 튜터 스킬)
 *.pdf
 Skills/
