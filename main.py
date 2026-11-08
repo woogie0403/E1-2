@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import sys
 
 STATE_FILE = "state.json"
@@ -175,18 +176,22 @@ class QuizGame:
         print("=" * 40)
 
     def play_quiz(self) -> None:
-        """과제 요구사항 6: 저장된 퀴즈 순차 출제, 채점 및 최고 점수 갱신"""
+        """과제 요구사항 6 & 보너스 1: 퀴즈 랜덤 출제, 채점 및 최고 점수 갱신"""
         if not self.quizzes:
             print("\n⚠️ 등록된 퀴즈가 없습니다. 퀴즈를 먼저 추가해 주세요.")
             return
 
-        total_questions = len(self.quizzes)
-        print(f"\n📝 퀴즈를 시작합니다! (총 {total_questions}문제)")
+        # [보너스 기능] 등록 순서를 해치지 않도록 복사본을 만들어 무작위 셔플
+        quizzes_to_play = self.quizzes.copy()
+        random.shuffle(quizzes_to_play)
+
+        total_questions = len(quizzes_to_play)
+        print(f"\n🎲 퀴즈를 시작합니다! (총 {total_questions}문제, 문제 순서가 무작위로 섞였습니다)")
         print("-" * 40)
 
         correct_count = 0
 
-        for idx, quiz in enumerate(self.quizzes, start=1):
+        for idx, quiz in enumerate(quizzes_to_play, start=1):
             quiz.display(q_num=idx)
             user_ans = safe_input_int("\n정답 입력 (1-4): ", 1, 4)
 
