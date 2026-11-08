@@ -69,45 +69,28 @@ python main.py
 본 프로젝트는 단일 스크립트에 모든 코드를 몰아넣지 않고, **단일 책임 원칙(Single Responsibility Principle)**에 입각하여 데이터 모델 계층(`Quiz`), 제어 및 비즈니스 로직 계층(`QuizGame`), 안전 입출력 계층(`safe_input_*`), 데이터 영속성 계층(`state.json`)으로 명확히 분리 설계되었습니다:
 
 ```mermaid
-classDiagram
-    %% 클래스 다이어그램
-    class Quiz {
-        +str question
-        +list~str~ choices
-        +int answer
-        +display(q_num: int) void
-        +is_correct(user_answer: int) bool
-        +to_dict() dict
-        +from_dict(data: dict)$ Quiz
-    }
+flowchart TD
+    subgraph UI ["💻 대화형 콘솔 계층 (Console CLI)"]
+        Menu["메인 메뉴 루프 (run)<br/>1.풀기 2.추가 3.목록 4.점수 5.종료"]
+        InputShield["🛡️ 방어적 입력 모듈 (safe_input_*)<br/>공백·문자·빈엔터·Ctrl+C 크래시 방어"]
+    end
 
-    class QuizGame {
-        +list~Quiz~ quizzes
-        +int best_score
-        +show_menu() void
-        +play_quiz() void
-        +add_quiz() void
-        +show_quizzes() void
-        +show_score() void
-        +run() void
-    }
+    subgraph Controller ["⚙️ 게임 컨트롤러 계층 (Controller)"]
+        Game["QuizGame 클래스<br/>- play_quiz (랜덤 셔플 출제 & 실시간 채점)<br/>- add_quiz (동적 퀴즈 등록)<br/>- show_quizzes (전체 문제 목록 조회)<br/>- show_score (역대 최고 점수 확인)"]
+    end
 
-    class PersistenceModule {
-        <<File I/O>>
-        +save_state(quizzes, best_score) bool
-        +load_state() tuple~list, int~
-        +get_default_quizzes() list~Quiz~
-    }
+    subgraph Model ["📦 데이터 모델 계층 (Data Model)"]
+        QuizModel["Quiz 클래스 (OOP 모델)<br/>- question: 문제 문구<br/>- choices: 4지선다 보기<br/>- answer: 정답 번호 (1-4)<br/>- is_correct: 정답 일치 검증<br/>- to_dict / from_dict: 직렬화"]
+    end
 
-    class DefensiveInputModule {
-        <<Exception Shield>>
-        +safe_input_str(prompt) str
-        +safe_input_int(prompt, min, max) int
-    }
+    subgraph Storage ["💾 영속성 스토리지 계층 (Persistence)"]
+        StateJSON[("📄 state.json (UTF-8)<br/>- 퀴즈 6문항 영구 보존<br/>- 역대 최고 점수 영구 보존<br/>- 손상 시 자동 복구(Self-Healing)")]
+    end
 
-    QuizGame o-- Quiz : 1:N 퀴즈 객체 집합 관리
-    QuizGame ..> PersistenceModule : state.json 동기화
-    QuizGame ..> DefensiveInputModule : 사용자 입력 예외 방어
+    Menu <--> InputShield
+    InputShield --> Game
+    Game o-- "1:N 퀴즈 객체 관리" --> QuizModel
+    Game <--> "load_state / save_state" --> StateJSON
 ```
 
 ---
