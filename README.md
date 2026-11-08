@@ -89,8 +89,8 @@ flowchart TD
 
     Menu <--> InputShield
     InputShield --> Game
-    Game o-- "1:N 퀴즈 객체 관리" --> QuizModel
-    Game <--> "load_state / save_state" --> StateJSON
+    Game -->|"1:N 퀴즈 객체 집합 관리"| QuizModel
+    Game <-->|"load_state / save_state 동기화"| StateJSON
 ```
 
 ---
