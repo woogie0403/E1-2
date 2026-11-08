@@ -1,3 +1,6 @@
+import sys
+
+
 class Quiz:
     """개별 퀴즈의 정보를 담고 출력 및 채점을 담당하는 클래스"""
 
@@ -69,15 +72,48 @@ def get_default_quizzes() -> list[Quiz]:
     ]
 
 
+# ==========================================
+# [공통 방어적 입력 함수 (과제 요구사항 3 충족)]
+# ==========================================
+def safe_input_str(prompt: str) -> str:
+    """공백 제거 및 Ctrl+C / EOF 대응 안전 문자열 입력 함수"""
+    while True:
+        try:
+            val = input(prompt).strip()
+            if not val:
+                print("⚠️ 빈 입력은 허용되지 않습니다. 내용을 입력해 주세요.")
+                continue
+            return val
+        except (KeyboardInterrupt, EOFError):
+            print("\n\n⚠️ 프로그램이 사용자에 의해 중단되었습니다. 안전하게 종료합니다.")
+            sys.exit(0)
+
+
+def safe_input_int(prompt: str, min_val: int, max_val: int) -> int:
+    """공백 제거, 문자 입력 방어, 범위 검증, Ctrl+C 대응 안전 정수 입력 함수"""
+    while True:
+        try:
+            raw_input = input(prompt).strip()
+            if not raw_input:
+                print(f"⚠️ 빈 입력입니다. {min_val}-{max_val} 사이의 숫자를 입력해 주세요.")
+                continue
+
+            val = int(raw_input)
+            if min_val <= val <= max_val:
+                return val
+            else:
+                print(f"⚠️ 잘못된 입력입니다. {min_val}-{max_val} 사이의 숫자를 입력해 주세요.")
+        except ValueError:
+            print(f"⚠️ 잘못된 입력입니다. {min_val}-{max_val} 사이의 숫자를 입력해 주세요.")
+        except (KeyboardInterrupt, EOFError):
+            print("\n\n⚠️ 프로그램이 사용자에 의해 중단되었습니다. 안전하게 종료합니다.")
+            sys.exit(0)
+
+
 if __name__ == "__main__":
-    # [단독 기능 테스트]
-    print("=== Quiz 클래스 동작 테스트 ===")
-    sample_quizzes = get_default_quizzes()
-    first_quiz = sample_quizzes[0]
-
-    first_quiz.display(q_num=1)
-
-    print("\n--- 채점 테스트 ---")
-    print(f"3번(6개) 선택 시 정답 여부: {first_quiz.is_correct(3)} (예상: True)")
-    print(f"1번(4개) 선택 시 정답 여부: {first_quiz.is_correct(1)} (예상: False)")
+    # [방어적 입력 단독 테스트]
+    print("=== 방어적 입력 함수 테스트 ===")
+    print("일부러 문자(abc), 빈 엔터, 범위 밖 숫자(99), 공백(' 2 ')을 입력해 보세요!")
+    selected = safe_input_int("1-4 사이의 번호 입력: ", 1, 4)
+    print(f"선택 완료: {selected}번")
     print("=== 테스트 종료 ===")
