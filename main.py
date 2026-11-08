@@ -154,7 +154,7 @@ def load_state() -> tuple[list[Quiz], int]:
 
 
 # ==========================================
-# [QuizGame 클래스 (과제 요구사항 2, 10 충족)]
+# [QuizGame 클래스 (과제 요구사항 2, 6, 10 충족)]
 # ==========================================
 class QuizGame:
     """퀴즈 게임 전체 흐름과 메뉴, 데이터 상태를 관리하는 컨트롤러 클래스"""
@@ -175,8 +175,40 @@ class QuizGame:
         print("=" * 40)
 
     def play_quiz(self) -> None:
-        """[STEP 6에서 브랜치 작업으로 구현 예정]"""
-        print("\n👉 [퀴즈 풀기 기능은 STEP 6 브랜치 작업에서 구현됩니다!]")
+        """과제 요구사항 6: 저장된 퀴즈 순차 출제, 채점 및 최고 점수 갱신"""
+        if not self.quizzes:
+            print("\n⚠️ 등록된 퀴즈가 없습니다. 퀴즈를 먼저 추가해 주세요.")
+            return
+
+        total_questions = len(self.quizzes)
+        print(f"\n📝 퀴즈를 시작합니다! (총 {total_questions}문제)")
+        print("-" * 40)
+
+        correct_count = 0
+
+        for idx, quiz in enumerate(self.quizzes, start=1):
+            quiz.display(q_num=idx)
+            user_ans = safe_input_int("\n정답 입력 (1-4): ", 1, 4)
+
+            if quiz.is_correct(user_ans):
+                print("✅ 정답입니다!")
+                correct_count += 1
+            else:
+                correct_choice = quiz.choices[quiz.answer - 1]
+                print(f"❌ 오답입니다! (정답: {quiz.answer}번 {correct_choice})")
+            print("-" * 40)
+
+        # 결과 점수 계산 (100점 만점 기준 환산)
+        score = int((correct_count / total_questions) * 100)
+
+        print("\n" + "=" * 40)
+        print(f"🏆 결과: {total_questions}문제 중 {correct_count}문제 정답! ({score}점)")
+
+        if score > self.best_score:
+            self.best_score = score
+            save_state(self.quizzes, self.best_score)
+            print("🎉 새로운 최고 점수입니다!")
+        print("=" * 40)
 
     def add_quiz(self) -> None:
         """[STEP 7에서 구현 예정]"""
