@@ -397,3 +397,7 @@ Fast-forward
 - [x] 과제 필수 10개 이상의 의미 있는 기능 단위 커밋 히스토리 구축 완료
 - [x] 필수 증빙 스크린샷 4종(`menu.png`, `play.png`, `add_quiz.png`, `score.png`) 누락 없이 임베딩 완료
 - [x] Git 브랜치 분기(`feat/quiz-play`) 및 머지(`git merge`) 이력 완비 확인
+
+## 📬 문의 및 기여 (Contact & Feedback)
+- 프로젝트에 대한 질문이나 피드백은 [GitHub Issues](https://github.com/woogie0403/E1-2/issues)를 이용해주세요.
+- 작성자 이메일: jaewook0403@gmail.com
