@@ -211,16 +211,44 @@ class QuizGame:
         print("=" * 40)
 
     def add_quiz(self) -> None:
-        """[STEP 7에서 구현 예정]"""
-        print("\n👉 [퀴즈 추가 기능은 STEP 7에서 구현됩니다!]")
+        """과제 요구사항 7: 새로운 퀴즈 등록 및 state.json 영구 저장"""
+        print("\n📌 새로운 퀴즈를 추가합니다.")
+        question = safe_input_str("문제를 입력하세요: ")
+
+        choices = []
+        for i in range(1, 5):
+            choice = safe_input_str(f"선택지 {i}: ")
+            choices.append(choice)
+
+        answer = safe_input_int("정답 번호 (1-4): ", 1, 4)
+
+        new_quiz = Quiz(question=question, choices=choices, answer=answer)
+        self.quizzes.append(new_quiz)
+        save_state(self.quizzes, self.best_score)
+
+        print("\n✅ 퀴즈가 추가되었습니다! (state.json 파일에 자동 저장 완료)")
 
     def show_quizzes(self) -> None:
-        """[STEP 8에서 구현 예정]"""
-        print("\n👉 [퀴즈 목록 기능은 STEP 8에서 구현됩니다!]")
+        """과제 요구사항 8: 저장된 퀴즈 목록 전체 출력"""
+        if not self.quizzes:
+            print("\n📋 등록된 퀴즈가 없습니다.")
+            return
+
+        print(f"\n📋 등록된 퀴즈 목록 (총 {len(self.quizzes)}개)")
+        print("-" * 40)
+        for idx, quiz in enumerate(self.quizzes, start=1):
+            print(f" [{idx}] {quiz.question}")
+        print("-" * 40)
 
     def show_score(self) -> None:
-        """[STEP 8에서 구현 예정]"""
-        print("\n👉 [점수 확인 기능은 STEP 8에서 구현됩니다!]")
+        """과제 요구사항 9: 최고 점수 확인 및 미플레이 예외 처리"""
+        print("\n" + "=" * 40)
+        if self.best_score == 0:
+            print("🏆 최고 점수: 0점 (아직 퀴즈를 풀지 않았거나 정답이 없습니다.)")
+            print("👉 1번 메뉴를 눌러 첫 퀴즈에 도전해 보세요!")
+        else:
+            print(f"🏆 최고 점수: {self.best_score}점")
+        print("=" * 40)
 
     def run(self) -> None:
         """메인 이벤트 루프를 실행합니다."""
